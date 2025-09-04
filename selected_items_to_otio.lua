@@ -1,5 +1,5 @@
--- Reaper Lua Script: Export Selected Media Items to OpenTimelineIO
--- Usage: Select media items and run script
+-- Part of reaper-edit-tools
+-- Export Selected Items to OTIO - Convert selected media items to OpenTimelineIO format
 
 
 function msg(text)

@@ -1,5 +1,5 @@
--- Reorder Visible Tracks by First Media Item Timestamp
--- REAPER script to reorder visible tracks based on timestamp of first media item in each track
+-- Part of reaper-edit-tools
+-- Reorder Tracks by First Item Timestamp - Sort selected tracks chronologically
 
 function getFirstItemPosition(track)
     local numItems = reaper.GetTrackNumMediaItems(track)

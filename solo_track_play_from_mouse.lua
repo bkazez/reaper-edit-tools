@@ -1,5 +1,5 @@
--- Solo Track Under Mouse and Play From Mouse Position
--- REAPER script to solo the track under the mouse cursor and start playback from mouse position
+-- Part of reaper-edit-tools
+-- Solo Track Play From Mouse - Solo track under cursor and play from mouse position
 
 function main()
     -- Get mouse position

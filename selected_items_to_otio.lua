@@ -39,6 +39,10 @@ function get_project_framerate()
     return fps
 end
 
+function strip_file_extension(filename)
+    return filename:gsub("%.%w+$", "")
+end
+
 function get_selected_media_items_with_bounds()
     local items = {}
     local tracks_used = {}
@@ -73,6 +77,8 @@ function get_selected_media_items_with_bounds()
             local take_name = reaper.GetTakeName(take)
             if take_name == "" then
                 take_name = "Unnamed Take " .. i
+            else
+                take_name = strip_file_extension(take_name)
             end
             
             local take_start_offset = reaper.GetMediaItemTakeInfo_Value(take, "D_STARTOFFS")
@@ -133,6 +139,17 @@ function get_output_path(filename_base)
         if render_path:match("/Media$") then
             render_path = render_path:gsub("/Media$", "")
         end
+    else
+        -- If render_path is relative, make it absolute
+        if not render_path:match("^/") then
+            local project_path = reaper.GetProjectPath("")
+            if project_path:match("/Media$") then
+                project_path = project_path:gsub("/Media$", "")
+            end
+            render_path = project_path .. "/" .. render_path
+        end
+        -- Ensure the directory exists
+        reaper.RecursiveCreateDirectory(render_path, 0)
     end
     return render_path .. "/" .. filename_base
 end

@@ -35,19 +35,14 @@ function M.clear_existing_markers_of_type(marker_type)
     local retval, num_markers, num_regions = CountProjectMarkers(0)
     local markers_to_delete = {}
     
-    ShowConsoleMsg("Looking for markers with type: " .. marker_type .. "\n")
-    
     -- Collect all markers of this type first (to avoid index shifting during deletion)
     for i = 0, num_markers + num_regions - 1 do
         local retval, isrgn, pos, rgnend, marker_name, markrgnindexnumber, color = EnumProjectMarkers3(0, i)
-        ShowConsoleMsg("Checking marker: '" .. marker_name .. "'\n")
         
         -- Simple pattern: any number, colon, then the marker type
         local pattern = "%d+:" .. marker_type:gsub("([<>])", "%%%1")
-        ShowConsoleMsg("Using pattern: " .. pattern .. "\n")
         
         if marker_name:match(pattern) then
-            ShowConsoleMsg("MATCH! Will delete marker: " .. marker_name .. "\n")
             table.insert(markers_to_delete, markrgnindexnumber)
         end
     end
@@ -56,8 +51,6 @@ function M.clear_existing_markers_of_type(marker_type)
     for i = #markers_to_delete, 1, -1 do
         DeleteProjectMarker(0, markers_to_delete[i], false)
     end
-    
-    ShowConsoleMsg("Cleared " .. #markers_to_delete .. " existing " .. marker_type .. " markers\n")
 end
 
 function M.get_current_position()
@@ -178,12 +171,17 @@ function M.clear_track_selection()
     Main_OnCommand(40297, 0)
 end
 
+function M.scroll_selected_tracks_into_view()
+    -- Vertical scroll selected tracks into view
+    Main_OnCommand(40913, 0)
+end
+
 function M.set_edit_cursor_to_track(track_number)
     -- Set the edit cursor to be on the specified track
     local track = GetTrack(0, track_number - 1)
     if track then
         SetOnlyTrackSelected(track)
-        Main_OnCommand(40913, 0)  -- Vertical scroll selected tracks into view
+        M.scroll_selected_tracks_into_view()
         return true
     end
     return false

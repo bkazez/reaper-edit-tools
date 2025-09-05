@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Applications/ReaClassical_25/Scripts/chmaha Scripts/ReaClassical/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

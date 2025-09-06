@@ -1,5 +1,7 @@
--- Part of reaper-edit-tools
--- Reorder Tracks by First Item Timestamp - Sort selected tracks chronologically
+-- reaper-edit-tools
+-- Reorder Tracks by First Item Timestamp: Sort selected tracks chronologically
+-- Author: Ben Kazez
+-- GitHub: https://github.com/bkazez/reaper-edit-tools
 
 function getFirstItemPosition(track)
     local numItems = reaper.GetTrackNumMediaItems(track)

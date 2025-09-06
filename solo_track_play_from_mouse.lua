@@ -1,5 +1,7 @@
--- Part of reaper-edit-tools
--- Solo Track Play From Mouse - Solo track under cursor and play from mouse position
+-- reaper-edit-tools
+-- Solo Track Play From Mouse: Solo track under cursor and play from mouse position
+-- Author: Ben Kazez
+-- GitHub: https://github.com/bkazez/reaper-edit-tools
 
 function main()
     -- Get mouse position

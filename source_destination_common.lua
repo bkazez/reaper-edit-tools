@@ -1,3 +1,8 @@
+-- reaper-edit-tools
+-- Source Destination Common: Shared functionality for source/destination marker operations
+-- Author: Ben Kazez
+-- GitHub: https://github.com/bkazez/reaper-edit-tools
+
 local M = {}
 
 for key in pairs(reaper) do _G[key] = reaper[key] end

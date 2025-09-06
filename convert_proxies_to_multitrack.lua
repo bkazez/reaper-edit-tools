@@ -1,5 +1,7 @@
--- Part of reaper-edit-tools
--- Convert Proxies to Multitrack - Converts selected proxy items back to multitrack audio based on regions
+-- reaper-edit-tools
+-- Convert Proxies to Multitrack: Converts selected proxy items back to multitrack audio based on regions
+-- Author: Ben Kazez
+-- GitHub: https://github.com/bkazez/reaper-edit-tools
 
 function removeFileExtension(filename)
     return filename:match("(.+)%..+") or filename

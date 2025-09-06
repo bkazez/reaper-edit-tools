@@ -1,5 +1,7 @@
--- Part of reaper-edit-tools
--- Export Selected Items to OTIO - Convert selected media items to OpenTimelineIO format
+-- reaper-edit-tools
+-- Export Selected Items to OTIO: Convert selected media items to OpenTimelineIO format
+-- Author: Ben Kazez
+-- GitHub: https://github.com/bkazez/reaper-edit-tools
 
 
 function msg(text)

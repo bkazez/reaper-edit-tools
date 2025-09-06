@@ -1,3 +1,8 @@
+-- reaper-edit-tools
+-- Set Source OUT: Places a source OUT marker at current cursor/play position
+-- Author: Ben Kazez
+-- GitHub: https://github.com/bkazez/reaper-edit-tools
+
 local script_path = debug.getinfo(1, "S").source:match("@(.*)[\\/][^\\/]*$")
 if script_path then
     package.path = package.path .. ";" .. script_path .. "/?.lua"

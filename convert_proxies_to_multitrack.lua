@@ -55,12 +55,14 @@ function copyFades(from, to)
     end
 end
 
-function copyTakeProps(from, to)
-    for _, prop in ipairs({"D_VOL", "D_PAN"}) do
-        reaper.SetMediaItemTakeInfo_Value(to, prop, reaper.GetMediaItemTakeInfo_Value(from, prop))
+function copyOriginalPropsToNewItem(fromOriginalItem, toNewItem)
+    -- Copy all properties from original multitrack items (vol, mute, loop, lock)
+    -- Proxy items are used purely for editing decisions, not for mixing values
+    local itemProps = {"D_VOL", "B_MUTE", "B_LOOPSRC", "C_LOCK"}
+    for _, prop in ipairs(itemProps) do
+        local value = reaper.GetMediaItemInfo_Value(fromOriginalItem, prop)
+        reaper.SetMediaItemInfo_Value(toNewItem, prop, value)
     end
-    local _, name = reaper.GetSetMediaItemTakeInfo_String(from, "P_NAME", "", false)
-    reaper.GetSetMediaItemTakeInfo_String(to, "P_NAME", name, true)
 end
 
 function createMultitrack(proxyItem)
@@ -108,7 +110,7 @@ function createMultitrack(proxyItem)
                     local origOffset = reaper.GetMediaItemTakeInfo_Value(take, "D_STARTOFFS")
                     reaper.SetMediaItemTakeInfo_Value(newTake, "D_STARTOFFS", origOffset + sliceStart - data.pos)
                     
-                    copyTakeProps(take, newTake)
+                    copyOriginalPropsToNewItem(data.item, item)
                     copyFades(proxyItem, item)
                     created = created + 1
                 end

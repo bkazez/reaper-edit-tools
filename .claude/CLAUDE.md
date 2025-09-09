@@ -10,7 +10,9 @@ This project contains standalone REAPER Lua scripts for audio production and edi
 - Always check if required objects exist before operating on them
 - Use `reaper.Undo_BeginBlock()` and `reaper.Undo_EndBlock()` for undoable operations
 - Test scripts manually in REAPER before committing
-- Don't directly call cryptic commands like `Main_OnCommand(40630, 0)`; instead, create wrapper functions for readability
+- NEVER directly call cryptic commands like `Main_OnCommand(40630, 0)`; instead, create wrapper functions for readability
+- use thisCase for all user-created function names
+- Use constants, not magic numbers.
 
 ## Testing Scripts
 Scripts can be tested by launching REAPER with the script filename:

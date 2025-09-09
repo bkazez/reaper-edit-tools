@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Applications/ReaClassical_25/Scripts/chmaha Scripts/ReaClassical/**)"
+      "Read(//Applications/ReaClassical_25/Scripts/chmaha Scripts/ReaClassical/**)",
+      "Bash(/Applications/REAPER.app/Contents/MacOS/REAPER:*)"
     ],
     "deny": [],
     "ask": []

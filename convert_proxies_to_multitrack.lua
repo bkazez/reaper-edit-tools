@@ -63,6 +63,12 @@ function copyOriginalPropsToNewItem(fromOriginalItem, toNewItem)
         local value = reaper.GetMediaItemInfo_Value(fromOriginalItem, prop)
         reaper.SetMediaItemInfo_Value(toNewItem, prop, value)
     end
+    
+    -- Copy item title/name
+    local _, itemName = reaper.GetSetMediaItemInfo_String(fromOriginalItem, "P_NOTES", "", false)
+    if itemName and itemName ~= "" then
+        reaper.GetSetMediaItemInfo_String(toNewItem, "P_NOTES", itemName, true)
+    end
 end
 
 function createMultitrack(proxyItem)
@@ -109,6 +115,16 @@ function createMultitrack(proxyItem)
                     
                     local origOffset = reaper.GetMediaItemTakeInfo_Value(take, "D_STARTOFFS")
                     reaper.SetMediaItemTakeInfo_Value(newTake, "D_STARTOFFS", origOffset + sliceStart - data.pos)
+                    
+                    -- Copy play rate from proxy item
+                    local proxyPlayRate = reaper.GetMediaItemTakeInfo_Value(proxyTake, "D_PLAYRATE")
+                    reaper.SetMediaItemTakeInfo_Value(newTake, "D_PLAYRATE", proxyPlayRate)
+                    
+                    -- Copy take name from original item
+                    local _, originalTakeName = reaper.GetSetMediaItemTakeInfo_String(take, "P_NAME", "", false)
+                    if originalTakeName and originalTakeName ~= "" then
+                        reaper.GetSetMediaItemTakeInfo_String(newTake, "P_NAME", originalTakeName, true)
+                    end
                     
                     copyOriginalPropsToNewItem(data.item, item)
                     copyFades(proxyItem, item)

@@ -143,25 +143,34 @@ function main()
         reaper.ShowMessageBox("Select proxy items to convert", "No Selection", 0)
         return
     end
-    
+
     reaper.Undo_BeginBlock()
     local success, errors = 0, {}
-    
+    local proxyItemsToDelete = {}
+
     for i = 0, selected - 1 do
-        local ok, msg = createMultitrack(reaper.GetSelectedMediaItem(0, i))
+        local proxyItem = reaper.GetSelectedMediaItem(0, i)
+        local ok, msg = createMultitrack(proxyItem)
         if ok then
             success = success + 1
+            proxyItemsToDelete[#proxyItemsToDelete + 1] = proxyItem
         else
             errors[#errors + 1] = "Item " .. (i + 1) .. ": " .. msg
         end
     end
-    
+
+    -- Delete successfully converted proxy items
+    for _, proxyItem in ipairs(proxyItemsToDelete) do
+        local track = reaper.GetMediaItem_Track(proxyItem)
+        reaper.DeleteTrackMediaItem(track, proxyItem)
+    end
+
     reaper.UpdateArrange()
-    
+
     local result = success .. " of " .. selected .. " proxies converted"
     if #errors > 0 then result = result .. "\nErrors:\n• " .. table.concat(errors, "\n• ") end
     reaper.ShowMessageBox(result, "Convert Complete", 0)
-    
+
     reaper.Undo_EndBlock("Convert Proxies to Multitrack", -1)
 end
 

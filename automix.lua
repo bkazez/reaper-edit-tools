@@ -6,6 +6,8 @@
 
 local DEFAULT_SPEC_FILENAME = "automix_spec.txt"
 local TRACK_VOL_PARAM = "D_VOL"
+local EXT_STATE_SECTION = "Automix"
+local EXT_STATE_KEY_SPEC_PATH = "SpecPath"
 
 --------------------------------------------------------------------------------
 -- Utility functions
@@ -172,6 +174,10 @@ local function setTrackVolume(track, linearVol)
     reaper.SetMediaTrackInfo_Value(track, TRACK_VOL_PARAM, linearVol)
 end
 
+local function unmuteTrack(track)
+    reaper.SetMediaTrackInfo_Value(track, "B_MUTE", 0)
+end
+
 local function promptForSpecFile(projectPath)
     local defaultPath = projectPath .. "/" .. DEFAULT_SPEC_FILENAME
     local retval, selectedPath = reaper.GetUserFileNameForRead(
@@ -183,6 +189,18 @@ local function promptForSpecFile(projectPath)
         return nil  -- user cancelled
     end
     return selectedPath
+end
+
+local function getStoredSpecPath()
+    local retval, path = reaper.GetProjExtState(0, EXT_STATE_SECTION, EXT_STATE_KEY_SPEC_PATH)
+    if retval > 0 and path ~= "" then
+        return path
+    end
+    return nil
+end
+
+local function setStoredSpecPath(path)
+    reaper.SetProjExtState(0, EXT_STATE_SECTION, EXT_STATE_KEY_SPEC_PATH, path)
 end
 
 --------------------------------------------------------------------------------
@@ -199,10 +217,20 @@ local function main()
     local scriptPath = getScriptPath()
     local solverPath = scriptPath .. "automix_solve.py"
 
-    -- Prompt user to select spec file
-    local specPath = promptForSpecFile(projectPath)
+    -- Get spec file path from project metadata, or prompt if not set
+    local specPath = getStoredSpecPath()
+    if specPath and not fileExists(specPath) then
+        msg("Stored spec file no longer exists: " .. specPath)
+        specPath = nil
+    end
+
     if not specPath then
-        return  -- user cancelled
+        specPath = promptForSpecFile(projectPath)
+        if not specPath then
+            return  -- user cancelled
+        end
+        setStoredSpecPath(specPath)
+        reaper.MarkProjectDirty(0)
     end
 
     -- Check file exists
@@ -270,47 +298,6 @@ local function main()
         return
     end
 
-    if not result.success then
-        msg("\nWARNING: Target mix not achievable!")
-
-        -- Build alert message showing what changed
-        local alertLines = {"Target mix not achievable.", "", "To fix, change these target values:"}
-        if result.achieved_mix then
-            for name, data in pairs(result.achieved_mix) do
-                local diff = data.diff or 0
-                if math.abs(diff) > 0.005 then
-                    -- Parse component name (e.g., "pno_early" -> instrument "pno", type "early")
-                    local instr, compType = name:match("^(%w+)_(%w+)$")
-                    if instr and compType then
-                        local suggestion
-                        if diff > 0 then
-                            suggestion = "increase"
-                        else
-                            suggestion = "decrease"
-                        end
-                        table.insert(alertLines, string.format(
-                            "  %s %s: %s to at least %.0f%%",
-                            instr, compType, suggestion,
-                            (data.achieved or 0) * 100
-                        ))
-                        table.insert(alertLines, string.format(
-                            "    (you set %.0f%%, minimum achievable is %.0f%%)",
-                            (data.target or 0) * 100,
-                            (data.achieved or 0) * 100
-                        ))
-                    end
-                end
-            end
-        end
-
-        reaper.ShowMessageBox(table.concat(alertLines, "\n"), "Automix", 0)
-
-        if result.error_message then
-            msg(result.error_message)
-        end
-        msg("\nApplying best approximation anyway...\n")
-    end
-
     -- Display analysis
     if result.analysis then
         msg("\n" .. result.analysis)
@@ -349,6 +336,7 @@ local function main()
             local track = findTrackByName(name)
             if track then
                 setTrackVolume(track, level)
+                unmuteTrack(track)
                 msg("    -> Applied")
             else
                 msg("    -> Track not found!")
@@ -372,7 +360,26 @@ local function main()
         end
     end
 
-    msg("\nDone.")
+    msg("\nDone. Applied automix from spec at " .. specPath)
+
+    -- Show informational summary if target wasn't achievable
+    if not result.success then
+        msg("\n--- Note ---")
+        msg("Exact target not achievable. Closest approximation applied.")
+        if result.achieved_mix then
+            msg("Components with significant error:")
+            for name, data in pairs(result.achieved_mix) do
+                local diff = data.diff or 0
+                if math.abs(diff) > 0.005 then
+                    local target = (data.target or 0) * 100
+                    local achieved = (data.achieved or 0) * 100
+                    msg(string.format("  %s: %.0f%% (target %.0f%%, %+.0f%%)",
+                        name, achieved, target, achieved - target))
+                end
+            end
+        end
+        msg("You can undo this action (Ctrl+Z).")
+    end
 end
 
 main()
